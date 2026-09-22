@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo de Servicios | Kees</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        body {
+            background-color: #f8f5f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            color: white;
+            padding: 70px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-weight: bold;
+            font-size: 3rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-img-top {
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .card-title {
+            color: #ea580c;
+            font-weight: bold;
+        }
+
+        .precio {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #c2410c;
+        }
+
+        .btn-consultar {
+            background-color: #f97316;
+            border: none;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-consultar:hover {
+            background-color: #ea580c;
+            color: white;
+        }
+
+        footer {
+            background-color: #1f2937;
+            color: white;
+            padding: 25px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        #mensaje {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="hero">
+
+        <div class="container">
+
+            <h1>Catálogo de Servicios</h1>
+
+            <p>
+                Soluciones digitales para potenciar tu marca
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- CATÁLOGO -->
+    <main class="container py-5">
+
+        <h2 class="text-center mb-5">
+            Nuestros servicios
+        </h2>
+
+        <!-- Mensaje de carga -->
+        <div id="mensaje">
+            <div class="spinner-border text-warning" role="status"></div>
+
+            <p class="mt-3">
+                Cargando servicios...
+            </p>
+        </div>
+
+
+        <!-- Contenedor de tarjetas -->
+        <div
+            id="catalogo"
+            class="row g-4"
+        ></div>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p class="mb-1">
+            © 2026 Catálogo de Servicios
+        </p>
+
+        <p class="mb-0">
+            Valentina Kees
+        </p>
+
+        <p class="mb-0">
+            Analista Multimedial en Marketing Digital
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+    <script>
+
+        /*
+        =====================================================
+        URL DEL BACKEND
+        =====================================================
+        PEGÁ ACÁ LA URL QUE TE DIO GOOGLE APPS SCRIPT
+        Y QUE TERMINA EN /exec
+        */
+
+        const URL_BACKEND = "https://script.google.com/macros/s/AKfycbyRKW58Dxv4h6XR3T1nOFCJdRpa2ihQiqbvl8fXIO_yctV6pn9jXCOO3nT08wKs-S-s/exec";
+
+
+        /*
+        =====================================================
+        FUNCIÓN PARA CARGAR LOS SERVICIOS
+        =====================================================
+        */
+
+        fetch(URL_BACKEND)
+
+            .then(function(respuesta) {
+
+                if (!respuesta.ok) {
+                    throw new Error("No se pudo conectar con el backend.");
+                }
+
+                return respuesta.json();
+
+            })
+
+            .then(function(servicios) {
+
+                mostrarServicios(servicios);
+
+            })
+
+            .catch(function(error) {
+
+                console.error(error);
+
+                document.getElementById("mensaje").innerHTML = `
+                    <div class="alert alert-danger">
+                        No se pudieron cargar los servicios.
+                        <br>
+                        Verificá la URL del backend.
+                    </div>
+                `;
+
+            });
+
+
+        /*
+        =====================================================
+        MOSTRAR SERVICIOS
+        =====================================================
+        */
+
+        function mostrarServicios(servicios) {
+
+            const catalogo = document.getElementById("catalogo");
+
+            const mensaje = document.getElementById("mensaje");
+
+            // Quitamos el mensaje de carga
+            mensaje.innerHTML = "";
+
+
+            // Limpiamos el catálogo
+            catalogo.innerHTML = "";
+
+
+            /*
+            Recorremos todos los servicios
+            */
+
+            servicios.forEach(function(servicio) {
+
+                const tarjeta = document.createElement("div");
+
+                tarjeta.className = "col-12 col-md-6 col-lg-4";
+
+
+                /*
+                Creamos el contenido de la tarjeta
+                */
+
+                tarjeta.innerHTML = `
+
+                    <div class="card">
+
+                        <img
+                            src="${servicio.imagen}"
+                            class="card-img-top"
+                            alt="${servicio.nombre}"
+                        >
+
+                        <div class="card-body d-flex flex-column">
+
+                            <h5 class="card-title">
+                                ${servicio.nombre}
+                            </h5>
+
+                            <p class="card-text">
+                                ${servicio.descripcion}
+                            </p>
+
+                            <p class="precio mt-auto">
+                                $${Number(servicio.precio).toLocaleString("es-AR")}
+                            </p>
+
+                            <button
+                                class="btn btn-consultar"
+                                onclick="consultarWhatsApp('${servicio.nombre}')"
+                            >
+                                Consultar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+
+                catalogo.appendChild(tarjeta);
+
+            });
+
+        }
+
+
+        /*
+        =====================================================
+        WHATSAPP
+        =====================================================
+        */
+
+        function consultarWhatsApp(nombreServicio) {
+
+            /*
+            REEMPLAZÁ ESTE NÚMERO POR TU NÚMERO
+            DE WHATSAPP.
+
+            IMPORTANTE:
+            Colocarlo con código de país.
+            Argentina = 54
+            */
+
+            const numeroWhatsApp = "2946525454";
+
+
+            const mensaje = `Hola, quiero consultar por el servicio de ${nombreServicio}.`;
+
+
+            const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+
+
+            window.open(url, "_blank");
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
